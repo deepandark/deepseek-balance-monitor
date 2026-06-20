@@ -1,0 +1,33 @@
+{
+  "name": "deepseek-balance-monitor",
+  "version": "0.1.0",
+  "description": "Desktop app to monitor DeepSeek API balance and usage",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js",
+    "preview": "node scripts/preview.js"
+  },
+  "dependencies": {
+    "echarts": "^5.5.1",
+    "echarts-for-react": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cross-env": "^10.1.0",
+    "electron": "^30.3.0",
+    "electron-vite": "^2.3.0",
+    "lucide-react": "^0.468.0",
+    "postcss": "^8.4.49",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
+}
