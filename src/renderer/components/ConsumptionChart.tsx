@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { DailyConsumption } from '@/types/balance'
 
@@ -6,7 +7,10 @@ interface Props {
 }
 
 export default function ConsumptionChart({ data }: Props): JSX.Element {
+  const hasAnimated = useRef(false)
+
   if (data.length === 0) {
+    hasAnimated.current = false
     return (
       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
         数据不足，至少需要两天的记录才能计算消耗
@@ -14,15 +18,22 @@ export default function ConsumptionChart({ data }: Props): JSX.Element {
     )
   }
 
+  const isFirstRender = !hasAnimated.current
+  if (isFirstRender) {
+    hasAnimated.current = true
+  }
+
   const dates = data.map(d => {
     const parts = d.date.split('-')
-    return `${parts[1]}/${parts[2]}` // MM/DD
+    return `${parts[1]}/${parts[2]}`
   })
 
   const values = data.map(d => d.consumption)
   const isRecharge = data.map(d => d.isRecharge)
 
   const option = {
+    animationDuration: isFirstRender ? 800 : 0,
+    animationDurationUpdate: 0,
     tooltip: {
       trigger: 'axis' as const,
       formatter: (params: Array<{ name: string; value: number }>) => {
@@ -60,7 +71,7 @@ export default function ConsumptionChart({ data }: Props): JSX.Element {
         data: values.map((v, i) => ({
           value: v,
           itemStyle: {
-            color: isRecharge[i] ? '#f59e0b' : '#3b82f6' // amber for recharge, blue for normal
+            color: isRecharge[i] ? '#f59e0b' : '#3b82f6'
           }
         })),
         barMaxWidth: 30
@@ -69,6 +80,6 @@ export default function ConsumptionChart({ data }: Props): JSX.Element {
   }
 
   return (
-    <ReactECharts option={option} style={{ height: 300 }} notMerge />
+    <ReactECharts option={option} style={{ height: 300 }} />
   )
 }

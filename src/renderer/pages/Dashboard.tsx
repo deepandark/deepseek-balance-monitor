@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BalanceCards from '@/components/BalanceCards'
 import BalanceChart from '@/components/BalanceChart'
 import ConsumptionChart from '@/components/ConsumptionChart'
@@ -39,19 +39,25 @@ export default function Dashboard(): JSX.Element {
     }
   }
 
-  // Initial load
-  useEffect(() => {
-    loadData()
-  }, [])
+  const isMounted = useRef(false)
+  const lastRefreshRef = useRef(0)
 
-  // Reload when timeRange changes
+  // Initial load + reload when timeRange changes
   useEffect(() => {
-    ;(async () => {
-      const hist = await getHistory(timeRange)
-      setHistory(hist)
-      const cons = await getConsumption(timeRange)
-      setConsumption(cons)
-    })()
+    if (isMounted.current) {
+      // timeRange changed — only refetch chart data
+      ;(async () => {
+        const hist = await getHistory(timeRange)
+        setHistory(hist)
+        const cons = await getConsumption(timeRange)
+        setConsumption(cons)
+      })()
+    } else {
+      // Initial mount
+      isMounted.current = true
+      loadData()
+      lastRefreshRef.current = Date.now()
+    }
   }, [timeRange])
 
   // Subscribe to balance updates from polling
@@ -61,7 +67,8 @@ export default function Dashboard(): JSX.Element {
         const r = record as BalanceRecord
         setLatest(r)
         setError(null)
-        // Refresh chart data
+        // Skip full refresh if just loaded (avoid duplicate chart animation)
+        if (Date.now() - lastRefreshRef.current < 3000) return
         getHistory(timeRange).then(setHistory)
         getConsumption(timeRange).then(setConsumption)
         getConsumption(1).then(c => {

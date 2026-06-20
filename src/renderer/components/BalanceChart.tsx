@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { BalanceRecord } from '@/types/balance'
 
@@ -6,7 +7,10 @@ interface Props {
 }
 
 export default function BalanceChart({ records }: Props): JSX.Element {
+  const hasAnimated = useRef(false)
+
   if (records.length === 0) {
+    hasAnimated.current = false
     return (
       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
         暂无数据，请先配置 API Key 并刷新
@@ -14,7 +18,14 @@ export default function BalanceChart({ records }: Props): JSX.Element {
     )
   }
 
+  const isFirstRender = !hasAnimated.current
+  if (isFirstRender) {
+    hasAnimated.current = true
+  }
+
   const option = {
+    animationDuration: isFirstRender ? 800 : 0,
+    animationDurationUpdate: 0,
     tooltip: {
       trigger: 'axis' as const,
       valueFormatter: (value: number) => `¥${value.toFixed(2)}`
@@ -63,6 +74,6 @@ export default function BalanceChart({ records }: Props): JSX.Element {
   }
 
   return (
-    <ReactECharts option={option} style={{ height: 300 }} notMerge />
+    <ReactECharts option={option} style={{ height: 300 }} />
   )
 }
